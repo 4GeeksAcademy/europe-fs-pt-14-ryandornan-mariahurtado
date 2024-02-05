@@ -1,30 +1,47 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export const SignUpForm = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  });
 
-  const handleSignUp = async () => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
+      const response = await fetch(`${BACKEND_URL}/api/signup`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        // SignUp successful
-        console.log("SignUp successful");
+      const data = await response.json();
+
+      // If signup is successful and a token is received
+      if (response.ok && data.token) {
+        // Store the token in localStorage or another form of persistent storage
+        localStorage.setItem('token', data.token);
+        console.log('Signup successful, token received:', data.token);
       } else {
-        // Handle SignUp error
-        console.error("SignUp failed");
+        console.log('Signup failed:', data.message);
       }
+
+      console.log(data);
     } catch (error) {
-      console.error("Error during SignUp:", error);
+      console.log("There is an error: ", error);
     }
   };
 
@@ -36,71 +53,77 @@ export const SignUpForm = () => {
             <div className="card-body p-5">
               <h2 className="mb-5">Sign Up Now.</h2>
 
-              {/* Names Input */}
-              <div className="row">
-                {/* First Name Input */}
-                <div className="col-md-6 mb-4">
-                  <div className="form-outline">
-                    <input
-                      type="text"
-                      id="typeFirstName"
-                      className="form-control form-control-lg"
-                      placeholder="First Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
+              <form onSubmit={handleSubmit}>
+                {/* Names Input */}
+                <div className="row">
+                  {/* First Name Input */}
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <input
+                        type="text"
+                        id="typeFirstName"
+                        name="firstName"
+                        className="form-control form-control-lg"
+                        placeholder="First Name"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Last Name Input */}
+                  <div className="col-md-6 mb-4">
+                    <div className="form-outline">
+                      <input
+                        type="text"
+                        id="typeLastName"
+                        name="lastName"
+                        className="form-control form-control-lg"
+                        placeholder="Last Name"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Last Name Input */}
-                <div className="col-md-6 mb-4">
-                  <div className="form-outline">
-                    <input
-                      type="text"
-                      id="typeLastName"
-                      className="form-control form-control-lg"
-                      placeholder="Last Name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
+                {/* Email Input */}
+                <div className="form-outline mb-4">
+                  <input
+                    type="email"
+                    id="typeEmailX-2"
+                    name="email"
+                    className="form-control form-control-lg"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
                 </div>
-              </div>
 
-              {/* Email Input */}
-              <div className="form-outline mb-4">
-                <input
-                  type="email"
-                  id="typeEmailX-2"
-                  className="form-control form-control-lg"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+                {/* Password Input */}
+                <div className="form-outline mb-4">
+                  <input
+                    type="password"
+                    id="typePasswordX-2"
+                    name="password"
+                    className="form-control form-control-lg"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
 
-              {/* Password Input */}
-              <div className="form-outline mb-4">
-                <input
-                  type="password"
-                  id="typePasswordX-2"
-                  className="form-control form-control-lg"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              {/* SignUp Button */}
-              <div className="d-flex flex-column align-items-center mb-4">
-                <button
-                  className="btn btn-primary custom-btn"
-                  type="button" // Change type to "button" to prevent form submission
-                  onClick={handleSignUp}
-                >
-                  Sign Up
-                </button>
-              </div>
+                {/* SignUp Button */}
+                <div className="d-flex flex-column align-items-center mb-4">
+                  <button
+                    className="btn btn-primary custom-btn"
+                    type="button" // Change type to "button" to prevent form submission
+                    onClick={handleSubmit}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
